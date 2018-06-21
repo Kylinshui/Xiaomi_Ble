@@ -82,6 +82,11 @@ public class MainActivity extends AppCompatActivity {
                 if(!BleManager.getInstance().isConnected(bleDevice)){
                     BleManager.getInstance().cancelScan();
                     connect(bleDevice);
+                }else{
+                    //如果已经连上,直接转到设备信息页面
+                    Intent intent = new Intent(MainActivity.this,DeviceInfoActivity.class);
+                    intent.putExtra("BleDevice",bleDevice);
+                    startActivity(intent);
                 }
 
 
@@ -101,13 +106,15 @@ public class MainActivity extends AppCompatActivity {
             public void onConnectFail(BleDevice bleDevice, BleException exception) {
 
             }
-
+            //连接成功并发现服务
             @Override
             public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
                 Toast.makeText(getApplicationContext(),"Connect Success",
                         Toast.LENGTH_LONG).show();
                 //如果连接成功,则转到操作页
-                startActivity(new Intent(MainActivity.this,DeviceInfoActivity.class));
+                Intent intent = new Intent(MainActivity.this,DeviceInfoActivity.class);
+                intent.putExtra("BleDevice",bleDevice);
+                startActivity(intent);
 
             }
 
