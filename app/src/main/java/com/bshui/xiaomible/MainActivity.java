@@ -1,19 +1,23 @@
 package com.bshui.xiaomible;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothGatt;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bshui.xiaomible.adapter.DeviceAdapter;
 import com.clj.fastble.BleManager;
+import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.callback.BleScanCallback;
 import com.clj.fastble.data.BleDevice;
+import com.clj.fastble.exception.BleException;
 
 import java.util.List;
 
@@ -67,7 +71,52 @@ public class MainActivity extends AppCompatActivity {
 
         mDeviceAdapter = new DeviceAdapter(this);
         lv_dev.setAdapter(mDeviceAdapter);
+        lv_dev.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+               //点击蓝牙设备选项 连接蓝牙 并进入相应的操作页面
 
+                final BleDevice bleDevice = mDeviceAdapter.getItem(i);
+                if(bleDevice == null)
+                    return;
+                if(!BleManager.getInstance().isConnected(bleDevice)){
+                    BleManager.getInstance().cancelScan();
+                    connect(bleDevice);
+                }
+
+
+
+            }
+        });
+    }
+
+    private void connect(final BleDevice bleDevice){
+        BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
+            @Override
+            public void onStartConnect() {
+
+            }
+
+            @Override
+            public void onConnectFail(BleDevice bleDevice, BleException exception) {
+
+            }
+
+            @Override
+            public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
+                Toast.makeText(getApplicationContext(),"Connect Success",
+                        Toast.LENGTH_LONG).show();
+                //如果连接成功,则转到操作页
+                startActivity(new Intent(MainActivity.this,DeviceInfoActivity.class));
+
+            }
+
+            @Override
+            public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
+                Toast.makeText(getApplicationContext(),"Connect Fail",
+                        Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void startScan(){
@@ -96,11 +145,6 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
-
-
-
-
-
 
         });
     }

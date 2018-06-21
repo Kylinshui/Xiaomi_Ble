@@ -109,4 +109,6 @@ public class DeviceAdapter extends BaseAdapter{
         TextView  txt_name;
         TextView  txt_mac;
     }
+
+
 }
