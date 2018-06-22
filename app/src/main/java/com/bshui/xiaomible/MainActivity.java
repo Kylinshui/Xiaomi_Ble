@@ -1,9 +1,11 @@
 package com.bshui.xiaomible;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,16 +24,22 @@ import com.clj.fastble.exception.BleException;
 
 import java.util.List;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class MainActivity extends AppCompatActivity {
     private Button bt_scan;
     private ListView lv_dev;
     private DeviceAdapter mDeviceAdapter;
     private ProgressDialog progressDialog;
+    private static final int ACCESS_COARSE_LOCATION = 100;
+    String[] perms = {Manifest.permission.BLUETOOTH_ADMIN,
+    Manifest.permission.ACCESS_COARSE_LOCATION};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        checkpermission();
         initView();
 
         //1.初始化及配置
@@ -58,7 +66,16 @@ public class MainActivity extends AppCompatActivity {
         BleManager.getInstance().disconnectAllDevice();
         BleManager.getInstance().destroy();
     }
+    private void checkpermission(){
+        if(EasyPermissions.hasPermissions(this,perms)){
 
+        }else{
+            EasyPermissions.requestPermissions(this,
+                    "Need ACCESS_COARSE_LOCATION",
+                    ACCESS_COARSE_LOCATION,
+                    perms);
+        }
+    }
     private void initView(){
         bt_scan = (Button)findViewById(R.id.btScan);
         lv_dev  = (ListView)findViewById(R.id.lvDev);
@@ -160,4 +177,14 @@ public class MainActivity extends AppCompatActivity {
 
         });
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode,
+                permissions,
+                grantResults,
+                this);
+    }
+
 }
