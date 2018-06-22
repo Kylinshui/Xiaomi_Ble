@@ -1,5 +1,6 @@
 package com.bshui.xiaomible;
 
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
 import android.content.Intent;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private Button bt_scan;
     private ListView lv_dev;
     private DeviceAdapter mDeviceAdapter;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private void initView(){
         bt_scan = (Button)findViewById(R.id.btScan);
         lv_dev  = (ListView)findViewById(R.id.lvDev);
+        progressDialog = new ProgressDialog(this);
 
         bt_scan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,16 +102,17 @@ public class MainActivity extends AppCompatActivity {
         BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
             @Override
             public void onStartConnect() {
-
+                progressDialog.show();
             }
 
             @Override
             public void onConnectFail(BleDevice bleDevice, BleException exception) {
-
+                progressDialog.dismiss();
             }
             //连接成功并发现服务
             @Override
             public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
+               progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(),"Connect Success",
                         Toast.LENGTH_LONG).show();
                 //如果连接成功,则转到操作页
@@ -120,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
+                progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(),"Connect Fail",
                         Toast.LENGTH_LONG).show();
             }

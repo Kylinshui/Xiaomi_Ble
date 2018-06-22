@@ -23,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="31dp"
+        android:layout_marginTop="30dp"
         android:text="电池电量:"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,31 +54,51 @@
         android:id="@+id/tv_step"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="44dp"
         android:text="运动步数:"
         android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_level" />
+        app:layout_constraintBottom_toTopOf="@+id/bt_find"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/bt_step"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="61dp"
+        android:layout_marginTop="32dp"
         android:text="读"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_step"
-        app:layout_constraintStart_toEndOf="@+id/tv_step" />
+        app:layout_constraintStart_toStartOf="@+id/bt_level"
+        app:layout_constraintTop_toBottomOf="@+id/bt_level" />
 
     <Button
         android:id="@+id/bt_find"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="28dp"
         android:text="寻找手环"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_step" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/textView6"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="26dp"
+        android:layout_marginTop="39dp"
+        android:text="手环会发光和振动"
+        android:textSize="20sp"
+        app:layout_constraintStart_toEndOf="@+id/bt_find"
+        app:layout_constraintTop_toBottomOf="@+id/bt_step" />
+
+    <Button
+        android:id="@+id/bt_level"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="9dp"
+        android:layout_marginStart="61dp"
+        android:text="读"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_level"
+        app:layout_constraintStart_toEndOf="@+id/tv_level" />
 
 
 </android.support.constraint.ConstraintLayout>

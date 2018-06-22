@@ -1,5 +1,6 @@
 package com.bshui.xiaomible;
 
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattServer;
@@ -27,12 +28,15 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private BluetoothGattService bluetoothGattService;
     private BluetoothGattCharacteristic characteristic;
 
+
     private TextView tv_name;
     private TextView tv_mac;
     private TextView tv_level;//电池电量
     private TextView tv_step;//计步
     private Button   bt_step;//读步数
     private Button   bt_find;//寻找手环,会发光,振动
+    private Button   bt_level;//读电量
+
     private static String UUID_BATTERY_SERVICE = "0000fee0-0000-1000-8000-00805f9b34fb";
     private static String UUID_BATTERY_CHARA   = "0000ff0c-0000-1000-8000-00805f9b34fb";
 
@@ -54,6 +58,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         tv_step  = (TextView)findViewById(R.id.tv_step);
         bt_step  = (Button)findViewById(R.id.bt_step);
         bt_find  = (Button)findViewById(R.id.bt_find);
+        bt_level = (Button)findViewById(R.id.bt_level);
 
         bleDevice = getIntent().getParcelableExtra("BleDevice");
         if(bleDevice == null)
@@ -65,88 +70,29 @@ public class DeviceInfoActivity extends AppCompatActivity {
         //BluetoothGatt对象作为连接桥梁,双向通信
         BluetoothGatt gatt = BleManager.getInstance().getBluetoothGatt(bleDevice);
         //测试获取所有的Service和Characteristic的UUID
-        if(gatt!=null) {
+        /*if(gatt!=null) {
             Print_UUID(gatt);
+        }*/
+
+        print_level();
+        try{
+            Thread.sleep(500);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        //显示电池电量
-        BleManager.getInstance().read(bleDevice,
-                UUID_BATTERY_SERVICE,
-                UUID_BATTERY_CHARA,
-                new BleReadCallback() {
-                    @Override
-                    public void onReadSuccess(final byte[] data) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tv_level.setText("电池电量:"+data[0]+"%");
-                            }
-                        });
-                    }
 
-                    @Override
-                    public void onReadFailure(BleException exception) {
-                        tv_level.setText("电池电量:读取失败");
-                    }
-                });
-        //通知步数
-        BleManager.getInstance().notify(
-                bleDevice,
-                UUID_STEP_SERVICE,
-                UUID_STEP_CHARA,
-                new BleNotifyCallback() {
-                    @Override
-                    public void onNotifySuccess() {
-                        Log.i("TAG","step:onNotifySuccess");
-                    }
+        print_step();
+        bt_level.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                print_level();
+            }
+        });
 
-                    @Override
-                    public void onNotifyFailure(BleException exception) {
-                        Log.i("TAG","step:onNotifyFailure");
-                    }
-
-                    @Override
-                    public void onCharacteristicChanged(final byte[] data) {
-                        //打开通知后,设备发过来的数据在这里出现
-                        Log.i("TAG","step:"+data[0]);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                tv_step.setText("运动步数:"+data[0]);
-                            }
-                        });
-                    }
-                }
-        );
         bt_step.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BleManager.getInstance().read(bleDevice,
-                        UUID_STEP_SERVICE,
-                        UUID_STEP_CHARA,
-                        new BleReadCallback() {
-                            @Override
-                            public void onReadSuccess(final byte[] data) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-
-                                        String step0 = HexUtil.extractData(data,0);
-                                        String step1 = HexUtil.extractData(data,1);
-                                        int bu0 = Integer.valueOf(step0,16);
-                                        int bu1 = Integer.valueOf(step1, 16)*256;
-                                        int total = bu0+bu1;
-
-
-                                        tv_step.setText("运动步数:"+total+" 步");
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onReadFailure(BleException exception) {
-                                tv_step.setText("运动步数:读取失败");
-                            }
-                        });
+                print_step();
             }
         });
 
@@ -161,7 +107,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                         new BleWriteCallback() {
                             @Override
                             public void onWriteSuccess(int current, int total, byte[] justWrite) {
-                                
+
                             }
 
                             @Override
@@ -182,7 +128,58 @@ public class DeviceInfoActivity extends AppCompatActivity {
         //关闭通知
         BleManager.getInstance().stopNotify(bleDevice,UUID_STEP_SERVICE,UUID_STEP_CHARA);
     }
+    //显示电池电量
+    private void print_level(){
+        BleManager.getInstance().read(bleDevice,
+                UUID_BATTERY_SERVICE,
+                UUID_BATTERY_CHARA,
+                new BleReadCallback() {
+                    @Override
+                    public void onReadSuccess(final byte[] data) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tv_level.setText("电池电量:"+data[0]+"%");
+                            }
+                        });
+                    }
 
+                    @Override
+                    public void onReadFailure(BleException exception) {
+                        tv_level.setText("电池电量:读取失败");
+                    }
+                });
+    }
+    //显示步数
+    private void print_step(){
+        BleManager.getInstance().read(bleDevice,
+                UUID_STEP_SERVICE,
+                UUID_STEP_CHARA,
+                new BleReadCallback() {
+                    @Override
+                    public void onReadSuccess(final byte[] data) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                String step0 = HexUtil.extractData(data,0);
+                                String step1 = HexUtil.extractData(data,1);
+                                int bu0 = Integer.valueOf(step0,16);
+                                int bu1 = Integer.valueOf(step1, 16)*256;
+                                int total = bu0+bu1;
+
+
+                                tv_step.setText("运动步数:"+total+" 步");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onReadFailure(BleException exception) {
+                        tv_step.setText("运动步数:读取失败");
+                    }
+                });
+    }
     private void Print_UUID(BluetoothGatt gatt){
         List<BluetoothGattService> serviceList = gatt.getServices();
         for(BluetoothGattService service : serviceList){
