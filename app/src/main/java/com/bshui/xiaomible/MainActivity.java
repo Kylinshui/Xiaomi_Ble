@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private DeviceAdapter mDeviceAdapter;
     private ProgressDialog progressDialog;
     private static final int ACCESS_COARSE_LOCATION = 100;
+    private static int connect_count = 0;
     String[] perms = {Manifest.permission.BLUETOOTH_ADMIN,
     Manifest.permission.ACCESS_COARSE_LOCATION};
 
@@ -47,8 +48,7 @@ public class MainActivity extends AppCompatActivity {
         BleManager.getInstance()
                 .enableLog(true)
                 .setReConnectCount(1,5000)
-                .setConnectOverTime(20000)
-                .setOperateTimeout(5000);
+                .setOperateTimeout(50000);
 
         //判断本机是否打开蓝牙
         if(!BleManager.getInstance().isBlueEnable()){
@@ -99,9 +99,11 @@ public class MainActivity extends AppCompatActivity {
                 final BleDevice bleDevice = mDeviceAdapter.getItem(i);
                 if(bleDevice == null)
                     return;
+
                 if(!BleManager.getInstance().isConnected(bleDevice)){
                     BleManager.getInstance().cancelScan();
                     connect(bleDevice);
+
                 }else{
                     //如果已经连上,直接转到设备信息页面
                     Intent intent = new Intent(MainActivity.this,DeviceInfoActivity.class);
@@ -119,31 +121,42 @@ public class MainActivity extends AppCompatActivity {
         BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
             @Override
             public void onStartConnect() {
-                progressDialog.show();
+                    if(connect_count==0) {
+                        progressDialog.show();
+                    }
             }
 
             @Override
             public void onConnectFail(BleDevice bleDevice, BleException exception) {
-                progressDialog.dismiss();
+                if(connect_count==0) {
+                    progressDialog.dismiss();
+                }
             }
             //连接成功并发现服务
             @Override
             public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
-               progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(),"Connect Success",
-                        Toast.LENGTH_LONG).show();
-                //如果连接成功,则转到操作页
-                Intent intent = new Intent(MainActivity.this,DeviceInfoActivity.class);
-                intent.putExtra("BleDevice",bleDevice);
-                startActivity(intent);
+                if(connect_count==0) {
+                    progressDialog.dismiss();
+                    //Toast.makeText(getApplicationContext(),"Connect Success",
+                    //  Toast.LENGTH_LONG).show();
+                    //如果连接成功,则转到操作页
+                    Intent intent = new Intent(MainActivity.this, DeviceInfoActivity.class);
+                    intent.putExtra("BleDevice", bleDevice);
+                    startActivity(intent);
+                    connect_count++;
+                }
 
             }
 
             @Override
             public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
-                progressDialog.dismiss();
+                Log.i("TAG","onDisConnected"+" isActiveDisConnected"+isActiveDisConnected);
+
+
                 Toast.makeText(getApplicationContext(),"Connect Fail",
                         Toast.LENGTH_LONG).show();
+                if(connect_count >0)
+                    connect(bleDevice);
             }
         });
     }

@@ -68,7 +68,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         tv_name.setText("设备名:"+name);
         tv_mac.setText("设备地址:"+mac);
         //BluetoothGatt对象作为连接桥梁,双向通信
-        BluetoothGatt gatt = BleManager.getInstance().getBluetoothGatt(bleDevice);
+       // BluetoothGatt gatt = BleManager.getInstance().getBluetoothGatt(bleDevice);
         //测试获取所有的Service和Characteristic的UUID
         /*if(gatt!=null) {
             Print_UUID(gatt);
@@ -146,7 +146,13 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                     @Override
                     public void onReadFailure(BleException exception) {
-                        tv_level.setText("电池电量:读取失败");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tv_level.setText("电池电量:读取失败");
+                            }
+                        });
+
                     }
                 });
     }
@@ -176,7 +182,13 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                     @Override
                     public void onReadFailure(BleException exception) {
-                        tv_step.setText("运动步数:读取失败");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tv_step.setText("运动步数:读取失败");
+                            }
+                        });
+
                     }
                 });
     }
