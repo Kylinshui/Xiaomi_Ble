@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //2.扫描外围蓝牙设备
                 startScan();
+                connect_count = 0;
             }
         });
 
@@ -128,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onConnectFail(BleDevice bleDevice, BleException exception) {
+                Log.i("TAG","onConnectFail");
                 if(connect_count==0) {
                     progressDialog.dismiss();
                 }
@@ -137,8 +139,7 @@ public class MainActivity extends AppCompatActivity {
             public void onConnectSuccess(BleDevice bleDevice, BluetoothGatt gatt, int status) {
                 if(connect_count==0) {
                     progressDialog.dismiss();
-                    //Toast.makeText(getApplicationContext(),"Connect Success",
-                    //  Toast.LENGTH_LONG).show();
+
                     //如果连接成功,则转到操作页
                     Intent intent = new Intent(MainActivity.this, DeviceInfoActivity.class);
                     intent.putExtra("BleDevice", bleDevice);
@@ -150,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDisConnected(boolean isActiveDisConnected, BleDevice device, BluetoothGatt gatt, int status) {
-                Log.i("TAG","onDisConnected"+" isActiveDisConnected"+isActiveDisConnected);
+                Log.i("TAG","onDisConnected"+" isActiveDisConnected:"+isActiveDisConnected+" count:"+connect_count);
 
 
                 Toast.makeText(getApplicationContext(),"Connect Fail",

@@ -100,5 +100,15 @@
         app:layout_constraintBottom_toBottomOf="@+id/tv_level"
         app:layout_constraintStart_toEndOf="@+id/tv_level" />
 
+    <Button
+        android:id="@+id/btDisconnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="23dp"
+        android:text="断开连接"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bt_find" />
+
 
 </android.support.constraint.ConstraintLayout>

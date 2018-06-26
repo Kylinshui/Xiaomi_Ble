@@ -36,6 +36,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private Button   bt_step;//读步数
     private Button   bt_find;//寻找手环,会发光,振动
     private Button   bt_level;//读电量
+    private Button   bt_disconnect;//断开连接
 
     private static String UUID_BATTERY_SERVICE = "0000fee0-0000-1000-8000-00805f9b34fb";
     private static String UUID_BATTERY_CHARA   = "0000ff0c-0000-1000-8000-00805f9b34fb";
@@ -59,6 +60,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         bt_step  = (Button)findViewById(R.id.bt_step);
         bt_find  = (Button)findViewById(R.id.bt_find);
         bt_level = (Button)findViewById(R.id.bt_level);
+        bt_disconnect = (Button)findViewById(R.id.btDisconnect);
 
         bleDevice = getIntent().getParcelableExtra("BleDevice");
         if(bleDevice == null)
@@ -76,7 +78,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         print_level();
         try{
-            Thread.sleep(500);
+            Thread.sleep(100);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -119,14 +121,22 @@ public class DeviceInfoActivity extends AppCompatActivity {
             }
         });
 
+        bt_disconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(bleDevice!=null){
+                    BleManager.getInstance().disconnect(bleDevice);
+                }
+            }
+        });
+
 
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //关闭通知
-        BleManager.getInstance().stopNotify(bleDevice,UUID_STEP_SERVICE,UUID_STEP_CHARA);
+
     }
     //显示电池电量
     private void print_level(){
